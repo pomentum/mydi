@@ -46,7 +46,9 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$PWD:/src" -w /src -e CGO_ENABLED=0 \
   sh -c 'gofmt -l . && go vet ./... && GOOS=windows go vet ./... && go test ./...'
 ```
 
-That is what CI runs (`.github/workflows/ci.yml`), with the builds of `cmd/mydi` for Linux, Windows and arm64 and of the Windows test
+That is what CI runs (`.github/workflows/ci.yml`), the tests with coverage: each run's summary page shows the total and every
+file's share, and its artifact `coverage` holds the whole report line by line (`coverage/index.html`). The Windows files count as
+not covered there, since their tests run on Windows. It also builds `cmd/mydi` for Linux, Windows and arm64, and the Windows test
 binary. `MSYS_NO_PATHCONV=1` is for Git Bash on Windows; elsewhere it does nothing.
 
 ### The tests that need Windows

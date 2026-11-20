@@ -18,7 +18,7 @@ jobs:
       # the checkout belongs to another user inside the container, which git refuses to read for the build's stamp
       GOFLAGS: -buildvcs=false
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Forwards
         run: |
@@ -31,8 +31,37 @@ jobs:
       - name: Vet
         run: go vet ./... && GOOS=windows go vet ./... && GOOS=darwin go vet ./...
 
-      - name: Tests
-        run: go test ./...
+      - name: Tests, with coverage
+        run: |
+          mkdir -p coverage
+          go test -coverpkg=github.com/pomentum/mydi,github.com/pomentum/mydi/src -coverprofile=coverage/cover.out ./...
+
+      - name: Coverage report
+        if: always()
+        run: |
+          go tool cover -html=coverage/cover.out -o coverage/index.html
+          {
+            echo "## Coverage"
+            echo
+            echo "Statements covered by the tests on Linux: **$(go tool cover -func=coverage/cover.out | awk '/^total:/ {print $NF}')**."
+            echo "The Windows files (\`*_windows.go\`) run only in the Windows tests, built here and run on Windows, so they count as not covered."
+            echo "The whole report, line by line, is the artifact \`coverage\` of this run."
+            echo
+            echo "| File | Statements | Covered |"
+            echo "|---|---:|---:|"
+            # a block appears once per test package: counted once, covered if any package covered it
+            awk 'NR > 1 { n[$1] = $2; if ($3 > 0) hit[$1] = 1 }
+              END { for (b in n) { split(b, a, ":"); k = split(a[1], p, "/"); f = p[k-1] "/" p[k]; s[f] += n[b]; if (b in hit) c[f] += n[b] }
+                    for (f in s) printf "| `%s` | %d | %.1f%% |\n", f, s[f], 100 * c[f] / s[f] }' coverage/cover.out | sort -t'|' -k4 -n
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Coverage artifact
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: coverage
+          path: coverage/
+          if-no-files-found: ignore
 
       - name: Builds
         run: |
