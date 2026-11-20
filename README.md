@@ -2,6 +2,7 @@
 
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 [![Go Reference](https://pkg.go.dev/badge/github.com/pomentum/mydi.svg)](https://pkg.go.dev/github.com/pomentum/mydi)
+[![Website](https://img.shields.io/badge/website-www.pomentum.dev-1D5BD6)](https://www.pomentum.dev/)
 
 > **mydi** /ˈmi.ði/ (*μύδι*) *noun*. Greek for *mussel*, pronounced like *MIDI*. A lightweight shell for routing and shaping musical data.
 
