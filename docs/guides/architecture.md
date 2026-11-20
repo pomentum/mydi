@@ -32,11 +32,14 @@ flowchart TB
 
 - **Your program** builds the hub with `NewHub`: the ports it may use (`allowed`), where input goes (`listen`) and an owner for each
   send. `Release(owner)` ends every note that owner holds ([ADR-0002](../adrs/0002-events-ports-and-held-notes.md)).
-- **The time thread** owns every timed write: the clocks' pulses and events with `at`, on one queue and one timeline, at a priority the
-  system serves on time. It never calls a driver ([ADR-0003](../adrs/0003-one-time-thread.md)).
-- **The port writers**, one per output, make every driver call, so a driver that holds a write holds only its own port
+- **The time thread** owns every timed write: the clocks' pulses and events with `at`, on one queue and one timeline. On Windows it
+  runs at a priority the system serves on time (MMCSS "Pro Audio" and time-critical); on Linux on Go's timers at normal priority, for
+  now. It never calls a driver ([ADR-0003](../adrs/0003-one-time-thread.md)).
+- **The port writers**, one per output, make every write to the port (opening it is the hub's), so a driver that holds a write holds
+  only its own port
   ([ADR-0006](../adrs/0006-a-writer-per-port.md), [ADR-0007](../adrs/0007-writes-handed-ahead.md)).
-- **Listen** opens the inputs and hands on what they play, with the time the system stamped it (WinMM's on Windows).
+- **Listen** opens the inputs and hands on what they play, with the time it was read. An input being followed is read with the
+  system's own stamps instead (WinMM's on Windows), which the follower fits its line on.
 - **The follower** fits a line through a device's clock pulses to know its tempo and phase; **the remaker** sends that clock on to
   other ports, every pulse counted from Start to Stop ([ADR-0004](../adrs/0004-following-a-devices-clock.md),
   [ADR-0005](../adrs/0005-a-followed-clock-that-moves.md)).
@@ -48,8 +51,8 @@ flowchart TB
 flowchart TB
   grid["Clock grid<br/>pulse times from Start, never drifting"]
   thread["Time thread<br/>hands each pulse 2 ms ahead"]
-  writer["Port writer<br/>own thread, own high-resolution timer"]
-  landing["Landing<br/>the last 1 ms waited on the counter"]
+  writer["Port writer<br/>own thread, own timer"]
+  landing["Landing<br/>the last 1 ms spun on the counter"]
   driver["Driver call<br/>WinMM or ALSA, then the device"]
   timing[("Hub.Timing<br/>late pulses, gaps, holds")]
   down["Stand down<br/>write on waking, 2 to 16 bars"]
@@ -60,13 +63,16 @@ flowchart TB
   down -. "then lands again" .-> landing
 ```
 
-- **The grid.** A clock's pulse times are counted from its Start (24 a quarter note), so a late pulse never moves the next one; a stall
-  longer than four pulses moves the grid on rather than bursting to catch up ([ADR-0003](../adrs/0003-one-time-thread.md)).
-- **Handed ahead.** The time thread gives each pulse to its port's writer 2 ms before its time, with that time, so the hand-off is never
-  on the write's path ([ADR-0007](../adrs/0007-writes-handed-ahead.md)).
-- **The landing.** The writer sleeps on its own high-resolution timer until 1 ms before the time and waits the rest on the system's
-  counter, so the write lands on time. On a loaded machine that wait is itself taken off the processor, so a writer that lands late more
-  than 2 times in its last 96 stands down for 2 bars, doubling up to 16 while it keeps landing late
+- **The grid.** A clock's pulse times are counted from its Start (24 a quarter note), so a late pulse never moves the next one. A short
+  stall is caught up, pulses never closer than a quarter interval; a stall of more than four pulses moves the grid on
+  ([ADR-0003](../adrs/0003-one-time-thread.md)).
+- **Handed ahead.** The time thread gives each pulse of a port's own clock to its writer 2 ms before its time, with that time, so the
+  hand-off is never on the write's path. A followed clock's pulses are handed at their time instead, since the follower decides each one
+  only when it is due ([ADR-0007](../adrs/0007-writes-handed-ahead.md)).
+- **The landing.** The writer sleeps on its own timer (on Windows a high-resolution waitable timer, on Linux Go's) until 1 ms before
+  the time, then spins on the system's counter for the rest, so the write lands on time: mydi's one deliberate spin, a millisecond long.
+  On a loaded machine that spin is itself taken off the processor, so a writer that lands late more than 2 times in its last 96 stands
+  down for 2 bars, writing on waking; a stand-down that follows another at once lasts twice as long, up to 16 bars
   ([ADR-0008](../adrs/0008-a-landing-that-stands-down.md)).
 - **Counted.** Every pulse is counted against its place: more than 1 and 5 ms late, the longest gap, writes a driver held, stand-downs.
   `Hub.Timing` answers them, and `mydi timing` prints them ([the measuring guide](measuring.md)).
