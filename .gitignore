@@ -4,3 +4,4 @@ coverage/
 *.test.exe
 *.out
 *.trace
+.dev/

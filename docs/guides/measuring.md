@@ -56,6 +56,6 @@ mydi follow --in <id> --out <id>[,<id>] --seconds 60
 The clock that comes into `--in` followed and sent on, re-made, to each `--out`. Every second it prints the follower's state, the
 tempo, the pulses heard and sent since Start, the phase against the source and any pulse missing. `--loop-guard` turns the echo test on
 where the hub's own clock can come back into `--in`; `--record <file>` writes every clock and transport message heard and written, which
-a test can replay (as `testdata/` does); `--json` prints the final report.
+a test can replay (as `tests/testdata/` does); `--json` prints the final report.
 
 The measurements behind the library's decisions, and how they were made, are in [docs/reports](../reports/README.md).

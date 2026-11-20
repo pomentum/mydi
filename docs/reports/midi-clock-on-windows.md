@@ -7,7 +7,7 @@ design makes the hub's clock tight enough to rely on, on Windows first and then 
 **Evidence labels** as in [ADR-0000](../adrs/0000-record-architecture-decisions.md): **[V-web]** read on the cited page on 2026-11-13, through a fetch tool that
 summarises pages, so quotations are as that tool returned them; **[V-web, search summary]** seen only in a search engine's summary of
 the page, the page itself not read; **[V-code]** read in the source named (the Go toolchain's own source is Go 1.27.1's, read in the
-`golang:1.27.1-bookworm` image); **[V-exp]** observed in the spike of this report (a throwaway spike), on the machine
+`golang:1.27.1-bookworm` image); **[V-exp]** observed in the spike of this report ([clock-spike](clock-spike/README.md)), on the machine
 and in the state its section names; **[Inf]** inference, not observed. **Method.** Public sources on Ableton Link and Live, Windows
 timing, Windows' three MIDI stacks, Go's runtime on Windows, and how sequencers and receivers treat clock; then a spike that runs a 24
 ppqn clock at 120 BPM with thirteen ways of waiting, each pulse timed with `QueryPerformanceCounter`, on one Windows 11 laptop. This
@@ -183,7 +183,7 @@ driver that breaks that rule (network, Wi-Fi, graphics and ACPI drivers are the 
 any thread, at any priority. LatencyMon measures exactly this and calls under about 100 µs fine ([V-web]
 [LatencyMon](https://www.resplendence.com/latencymon)). A parked core "will not have any threads scheduled", and waking one costs time
 ([V-web] [Tuning servers for energy savings](https://devblogs.microsoft.com/sustainable-software/tuning-servers-for-energy-savings/)).
-These are why a hub is tested on its own hardware, and why `doctor` should measure rather than guess [Inf].
+These are why a hub is tested on its own hardware, and why the program's `doctor` should measure rather than guess [Inf].
 
 ## Windows' three MIDI stacks
 
@@ -919,7 +919,7 @@ hour.
   0.50 ms; after the clock started again, 0.34 and 0.39 ms, 4 and 5 pulses, and the rest the same as before. So the warm-up is the
   process's start [Inf: its pages and caches warming], not the clock's: harmless for an installed program, which starts long before a set.
   One run, on the system's software synth's port; the budget is still counted over whole runs, those minutes included.
-- **Where it must reach the user:** the rules are in the hub's guide, the clock's help (`midi@1.1.3`) and `doctor` on Windows: USB
+- **Where it must reach the user:** the rules are in the hub's guide, the clock's help and the program's `doctor` on Windows: USB
   set to MIDI only, DIN through an interface where the USB audio is wanted, devices plugged in before and none pulled during.
 - **The trade:** MIDI alone gives up the synth's USB audio (the section on the setting above). Where that audio is wanted, the release
   rule per port is back on the table, or the synth's DIN MIDI through an interface of its own.
@@ -953,7 +953,7 @@ review's question: does the bar hold with MIDI alone under the load that broke t
   calling it done here. The 1 ms budget: met in the quiet minutes (0.34%), just missed in the loaded ones (1.10%), with no pulse a
   receiver could hear as moved.
 - **A limit of the measure:** the soak's bar phase uses the wall clock; a soak that should read a drift of the music itself needs the
-  event's time on the hub's timeline, which the webhook's event does not carry (its `at` is wall time, for listeners). Not changed: a
+  event's time on the hub's timeline, which the event a listener hears does not carry (its `at` is wall time, for listeners). Not changed: a
   listener's time is rightly the wall's.
 
 ## Review, 2026-11-14
@@ -1021,7 +1021,7 @@ it to.
 | 2 | **Its priority.** MMCSS "Pro Audio" at critical, then `THREAD_PRIORITY_TIME_CRITICAL`; `TIME_CRITICAL` alone when MMCSS refuses; both logged at start | The same measure with the program run as a Windows service under its virtual account (`tools/spikes/a Windows spike/vm-steps.md`), since MMCSS from session 0 and a service's priority were not tried; the measure on a machine whose timer stays at 15.625 ms (no other program running), where the tick's effect on Go's clock shows |
 | 3 | **Aim early, never spin.** The timer aimed early by a slow-moving estimate of its wake-up delay, at most 2 ms (since off by default, the lead's A/B) | The spike's r with a slower lead against d, until its median is near zero and its tail and jitter are no worse than d's (the 32-pulse median of r was not: worst 3.9 to 20.5 ms against 1.9 to 7.5 ms); a test of the lead's arithmetic |
 | 4 | **The process asks to be served.** HighQoS and honoured timer requests through `SetProcessInformation`, at a program's start, its own process only | The measure on battery, with and without it, on a laptop; and as a service, where Utility QoS applies |
-| 5 | **Stalls counted and shown.** Pulses over 1 and 5 ms late, the longest gap and the grid's moves, in `status` and the program's status page; `doctor` runs a ten-second clock and reports it with the power source, the plan and the timer resolution | Tests of the counters; `doctor` on this machine and on a quiet one |
+| 5 | **Stalls counted and shown.** Pulses over 1 and 5 ms late, the longest gap and the grid's moves, in `status` and the program's status page; the program's `doctor` runs a ten-second clock and reports it with the power source, the plan and the timer resolution | Tests of the counters; the program's `doctor` on this machine and on a quiet one |
 | 6 | **The loopback rig.** A logic analyser or a second machine on the DIN output of a class-compliant USB interface, an hour per case, as "Measuring end to end" below lists | The table of "The numbers to hold it to" below, filled for WinMM on this machine and on a quiet Windows mini PC |
 | 7 | **Windows MIDI Services' scheduled send.** A spike: WinRT activation of `MidiSession` and `MidiEndpointConnection` from Go through `combase.dll` without CGo, then `IMidiEndpointConnectionRaw::SendMidiMessagesRaw` with timestamps 20 to 50 ms ahead; if it works, the time thread hands pulses and timed events to it where the SDK runtime is installed, WinMM elsewhere | The rig's table for the scheduled path against WinMM, at full load; the SDK runtime's licence and how it is installed; whether a service may open a session |
 | 8 | **Linux and the Pi.** The same time thread, with `clock_nanosleep` at absolute times and `SCHED_FIFO` (the earlier report's steps 9 and 10) | The spike's table on a Pi 4 and a Pi 5, idle and loaded, then the rig |
@@ -1088,7 +1088,7 @@ above; each step's evidence is in the plan].
    power plan is the machine's.
 8. **Stalls are counted, not hidden.** The grid rule stays (a short stall caught up, pulses never closer than a quarter interval; past four
    pulses the grid moves on). Each pulse's lateness feeds counters the program reports in `status` and the program's status page: pulses more than 1 ms
-   and 5 ms late, the longest gap, the grid's moves. `doctor` runs the same clock for ten seconds against no port and says what it saw,
+   and 5 ms late, the longest gap, the grid's moves. the program's `doctor` runs the same clock for ten seconds against no port and says what it saw,
    with the machine's power source, power plan and timer resolution, so a bad machine is found before a show.
 9. **Scheduled sends where Windows has them.** Where Windows MIDI Services' SDK runtime is installed, the time thread hands each pulse and
    timed event to the service with its `QueryPerformanceCounter` timestamp a short lead ahead (20 to 50 ms, a tempo change taking effect
@@ -1107,7 +1107,7 @@ The structure carries whole; the calls change [Inf]:
 | One locked thread waiting on its own high-resolution waitable timer | One locked thread in `clock_nanosleep` at an absolute time on `CLOCK_MONOTONIC` (the earlier report's step 10) |
 | `QueryPerformanceCounter` as the timeline | `CLOCK_MONOTONIC` read with `clock_gettime` (Go's own monotonic reading is that clock on Linux, per the earlier report, unverified) |
 | MMCSS "Pro Audio", or `THREAD_PRIORITY_TIME_CRITICAL` | `SCHED_FIFO` on that one thread, with `SCHED_RESET_ON_FORK`, under the unit's `LimitRTPRIO=` |
-| The process tagged HighQoS | The CPU frequency governor is the machine's; `doctor` reports it |
+| The process tagged HighQoS | The CPU frequency governor is the machine's; the program's `doctor` reports it |
 | Windows MIDI Services' scheduled send, where installed | ALSA's sequencer queue, only if the Pi's tail needs it (a later step) |
 | No spin; the timer aimed early by its recent lateness | The same rule, measured on the Pi, where a spin would cost a larger share of four cores |
 

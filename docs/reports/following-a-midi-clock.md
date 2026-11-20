@@ -26,7 +26,7 @@ pinned Go image.
   every stamp's spacing within 1 ms of the source's. The first run, with the read held 30 ms, gave no verdict: at 120 BPM a 30 ms
   hold queues one pulse, and a burst needs two in a row, so the tool's default hold is 100 ms now (the stand-in's 5 ms pulses had hidden
   it). Part B holds on Windows: the follower fits on WinMM's stamps. Not measured: the loop's own delay, which needs a loop or a
-  device that echoes, and which `doctor`'s per-port offset needs in step 3.
+  device that echoes, and which the program's `doctor`'s per-port offset needs in step 3.
 - Step 2, part C (2026-11-14): the follower as plain code (`follow.go`), a least-squares line through the source's
   pulses indexed by their place in its count, outliers beyond three times the residuals' scaled median absolute deviation or a tenth
   of an interval, lock on 24 pulses within a quarter interval, loss after the larger of four intervals and 120 ms, a hold of eight
@@ -72,7 +72,7 @@ pinned Go image.
   decided by the line: on it, or late in the next empty slot, the master's; an extra in a slot already heard, an echo; with no line
   yet, held. Limits: an echo closer to the master's own pulse than the line's outlier threshold (about 2 ms at 120 BPM), or later
   than half an interval, is not told apart by timing. Not yet: steps 3 (the re-made clock on the time thread,
-  against a device or a DAW, and `doctor`'s per-port offset) and 4.
+  against a device or a DAW, and the program's `doctor`'s per-port offset) and 4.
 - The first beat after Start (2026-11-15): a master that sends no clock while stopped, followed with the echo test on and no loop,
   had its first beat sent up to a third of a second late. Each pulse after the first pairs with the hub's relay of the one before, at
   the source's own interval, so it has no evidence either way; held until there was some, it stopped the very writes the evidence
@@ -134,7 +134,7 @@ pinned Go image.
   written none since; and the follower moves its line to that pulse when it lies off the line, interval and spread kept
   (`Follower.Restarted`), so the line does not keep the phase it learned while stopped. `midi follow --record <file>` writes every
   clock and transport message heard and written; a recording of the synth's three Starts (4, 6 and 14 ms) is a test source
-  (`testdata/drum-machine-start-stop.txt`, `TestADrumMachinesRecordedStartsAreEachFollowedFromTheirFirstPulse`), with a
+  (`tests/testdata/drum-machine-start-stop.txt`, `TestADrumMachinesRecordedStartsAreEachFollowedFromTheirFirstPulse`), with a
   generated device restarting 2 to 18 ms after its last pulse (`TestADeviceThatRestartsItsClockAtStartIsFollowedFromItsFirstPulse`);
   both failed before the fix. On the synth after it: four Starts (0.6, 6, 10 and 19 ms), each with the count kept, none refused, the
   phase from the second beat a median of 1.2 to 1.3 ms, the input's delivery after the system's stamp a median of 1.2 ms, the
@@ -266,7 +266,7 @@ Fixed: while locked, a pulse past the gap is taken as the next in the count unti
 (half an interval or more later, or none by then) means pulses were missing, and the gap's pulse is taken again in the line's place;
 one sooner is a burst, the system's held delivery, and the count stands (`Follower.settle`; counted as `Held`, and in `midi follow`'s
 report beside the pulses missing). The run's input from its second Start is a test source
-(`testdata/drum-machine-stalls.txt`, `TestADrumMachinesHeldDeliveriesKeepTheCount`, the hub held with its input): it failed
+(`tests/testdata/drum-machine-stalls.txt`, `TestADrumMachinesHeldDeliveriesKeepTheCount`, the hub held with its input): it failed
 before the fix (4,072 sent for 4,070) and passes after it, every pulse away from the holds within 1.1 ms of the synth's; a dropout of
 three or ten pulses is still counted missing (`TestDropoutsAreBridgedOrHeldAndASourceBackIsTakenAgain`).
 
@@ -353,5 +353,5 @@ second device's output waited on a device the system was dropping].
 
 The rest of the cases (F17: Ableton's baseline, with a source silent while stopped after idle); whether a hardware port stalls when a USB
 device leaves and comes back, and a writer per port (ADR-0003); load inside the hub's own process;
-`doctor`'s per-port offset (it needs a loop or a device that echoes); the run under load of step 1 (whether the MIDI service itself
+the program's `doctor`'s per-port offset (it needs a loop or a device that echoes); the run under load of step 1 (whether the MIDI service itself
 stamps late); the phase against a real receiver rather than a software port; a soft-thru loop with the loop guard on, on hardware (the synth re-sends the clock it receives over USB, its clock send, so a loop can be run); and a source whose own clock is uneven (the synth under about 30 BPM): its pattern relayed or an even clock at its average.

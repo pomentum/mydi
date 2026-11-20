@@ -16,6 +16,13 @@
 alone, a port that fails), `virtual_test.go`, `ports_test.go`, `device_port_test.go`, `winmm_windows_test.go` (on Windows); a synth
 played and clocked from both systems [V-exp, [the Windows report](../reports/midi-clock-on-windows.md)].
 
+**Measured where it began (2026-11-12):** a note played into a virtual port, through the program around the hub and a client, out of
+another virtual port: warm, 8 to 16 ms (median 11) over ten notes with the program's own routes, 11 to 26 ms (median 16) through its
+full path, and 23 to 75 ms (median 40) with more work running; the first note 64 to 375 ms. Every time includes the virtual ports' files
+read every 5 ms on each side [V-exp, Windows 11, built in `golang:1.27.1-bookworm`, other work running; one machine, not a measure of a
+rig]. Windows' own Microsoft GS Wavetable Synth listed, opened, sent All Notes Off and closed through `Winmm.dll` with no cgo, its
+opening taking 12 s [V-exp, the same machine]. No ALSA device tried yet.
+
 ## Context
 A program that plays MIDI needs a format its own users can write (often from another language, as JSON), a way to say when, and a
 guarantee that a note it started is ended when it goes away: a stuck note is the failure a musician notices first.
