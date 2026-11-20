@@ -2,13 +2,13 @@
 
 | Part | Decision | Status |
 |---|---|---|
-| A | mydi is a Go module of its own, `github.com/pomentum/mydi`, one package at its root, Apache-2.0, published by semantic version tags | Proposed |
+| A | mydi is a Go module of its own, `github.com/pomentum/mydi`, its code in `src/` forwarded at its root, Apache-2.0, published by semantic version tags | Accepted |
 | B | Pure Go: the standard library and `golang.org/x/sys` alone, no cgo; Linux (ALSA raw MIDI) and Windows (WinMM), every other system builds with no ports | Accepted |
 | C | Its public API is what a MIDI program needs: events, drivers and ports, the hub, the clock, following a clock, and the measures; what a program decides about its users (who may use a port, what it tells them) stays the program's | Accepted |
 | D | Tests at two levels: the library's own, black-box (`mydi_test`), on Linux in CI and on Windows by hand for what needs the system; and each program's own integration tests, which exercise mydi through that program | Accepted |
 | E | `cmd/mydi` is the library's measuring tool: the ports listed, the clock measured (as a Windows service too), a loopback, a device's clock followed | Accepted |
 
-**Status:** A Proposed; B to E Accepted, 2026-11-20.
+**Status:** Accepted, 2026-11-20 (A when `v0.1.0` was published).
 **Date:** 2026-11-20
 **Deciders:** the owner
 **Evidence:** the package's tests (`go test ./...` on Linux in CI; the Windows tests built as `.test.exe` and run on Windows, see
@@ -63,4 +63,4 @@ only when asked (`MYDI_TIMING=1`), never a gate. A program that uses mydi keeps 
 - Revisit when: a second package is wanted (network MIDI, MIDI 2.0), or the API is ready for `v1`.
 
 ## Action items
-- [ ] Make the repository public and tag `v0.1.0` (the owner).
+- [x] The repository made public and `v0.1.0` tagged (2026-11-20).

@@ -3,7 +3,7 @@
 Every release of mydi, newest first. Versions follow [semantic versioning](https://semver.org/); while mydi is at `v0`, a breaking change
 takes a new minor version and says so here.
 
-## v0.1.0 (unreleased)
+## v0.1.0 (2026-11-20)
 
 The first release.
 

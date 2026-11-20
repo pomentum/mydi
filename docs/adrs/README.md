@@ -7,7 +7,7 @@ package or a report in [docs/reports](../reports/README.md).
 | ADR | Decision | Status |
 |---|---|---|
 | [0000](0000-record-architecture-decisions.md) | Record architecture decisions, with parts, statuses and labelled evidence | Accepted |
-| [0001](0001-mydi-a-go-midi-library-of-its-own.md) | mydi, a Go MIDI library of its own: its module and versions, pure Go, its public API, tests at two levels, the measuring tool | A Proposed (published on a tag); B to E Accepted |
+| [0001](0001-mydi-a-go-midi-library-of-its-own.md) | mydi, a Go MIDI library of its own: its module and versions, its code in `src/` forwarded at the root, pure Go, its public API, tests at two levels, the measuring tool | Accepted (`v0.1.0`) |
 | [0002](0002-events-ports-and-held-notes.md) | Events as JSON, one MIDI 1.0 message each, played at their time; held notes released per owner; ALSA, WinMM and virtual ports; a USB device's port by its identity | Accepted (A, D not this library's) |
 | [0003](0003-one-time-thread.md) | One time thread owns every timed write, on the system's own clock and timer, at a priority the system serves on time; stalls counted | A to D Accepted; E Proposed |
 | [0004](0004-following-a-devices-clock.md) | Following a device's MIDI clock: the system's stamps, a robust line, the count kept from Start to Stop, listeners told the transport and tempo | Accepted; amended by 0005 |
