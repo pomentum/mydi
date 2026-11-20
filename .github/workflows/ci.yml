@@ -1,0 +1,37 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  go:
+    runs-on: ubuntu-24.04
+    # the Go the module pins, by tag and digest
+    container: golang:1.27.1-bookworm@sha256:8d48e12ec56735e9358640898b9d9b9fcca110612ed8a5567438c0a1baa24e66
+    env:
+      CGO_ENABLED: "0"
+      # the checkout belongs to another user inside the container, which git refuses to read for the build's stamp
+      GOFLAGS: -buildvcs=false
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - name: Format
+        run: test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+
+      - name: Vet
+        run: go vet ./... && GOOS=windows go vet ./... && GOOS=darwin go vet ./...
+
+      - name: Tests
+        run: go test ./...
+
+      - name: Builds
+        run: |
+          go build -trimpath -o /tmp/mydi ./cmd/mydi
+          GOOS=windows go build -trimpath -o /tmp/mydi.exe ./cmd/mydi
+          GOOS=linux GOARCH=arm64 go build -trimpath -o /tmp/mydi-arm64 ./cmd/mydi
+          GOOS=windows go test -c -o /tmp/mydi.test.exe .
