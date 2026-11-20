@@ -24,7 +24,8 @@ remake.go               the Remaker: the clock sent on, counted (ADR-0004 part D
 echo.go                 the echo test, a loop guard (ADR-0005 part B)
 following.go, tell.go   a followed clock on the hub, and what its listeners hear (ADR-0004 part E)
 loopback.go, measure.go the measures: where a system stamps input, the clock's own timing
-*_test.go, example_test.go  the tests, black-box (package mydi_test); testdata/ holds recorded devices
+example_test.go         the examples pkg.go.dev shows, which Go reads only beside the package
+tests/                  every test, black-box (package mydi_test); tests/testdata/ holds recorded devices
 cmd/mydi/               the measuring tool (ADR-0001 part E)
 docs/guides/            how to use and measure it
 docs/adrs/              the decisions, numbered from 0000; template.md
@@ -52,10 +53,10 @@ the image and run it on a Windows machine:
 
 ```sh
 # in the image
-GOOS=windows go test -c -o bin/mydi.test.exe .
-# then on Windows, from the repository's root (testdata/ is read relative to it)
-bin/mydi.test.exe
-bin/mydi.test.exe -test.run TestWindows -test.v
+GOOS=windows go test -c -o bin/mydi.test.exe ./tests
+# then on Windows, from tests/ (testdata/ is read relative to the folder it runs in)
+cd tests && ../bin/mydi.test.exe
+../bin/mydi.test.exe -test.run TestWindows -test.v
 ```
 
 ### Measures, run only when asked
@@ -66,10 +67,10 @@ run, and no CI runs them.
 ```sh
 # the clock against its grid, 20 s at 120 BPM; _LOAD=n adds n goroutines allocating flat out (or together at _MBPS megabytes a
 # second), _SECONDS sets its length, _PORT=<id> plays it on a real port too, _NOTES=n writes n note offs a second beside it
-MYDI_TIMING=1 bin/mydi.test.exe -test.run TestClockTiming -test.v
-MYDI_TIMING=1 MYDI_TIMING_LOAD=4 MYDI_TIMING_MBPS=200 bin/mydi.test.exe -test.run TestClockTiming -test.v
+MYDI_TIMING=1 ../bin/mydi.test.exe -test.run TestClockTiming -test.v
+MYDI_TIMING=1 MYDI_TIMING_LOAD=4 MYDI_TIMING_MBPS=200 ../bin/mydi.test.exe -test.run TestClockTiming -test.v
 # the follower's jittered cases drawn with more seeds than the default twenty
-MYDI_FOLLOW_SEEDS=200 go test -run "TestTheFollower|TestARamp|TestAJump|TestDropouts" ./...
+MYDI_FOLLOW_SEEDS=200 go test -run "TestTheFollower|TestARamp|TestAJump|TestDropouts" ./tests
 ```
 
 `cmd/mydi` measures a machine end to end; [the measuring guide](docs/guides/measuring.md) explains its reports.
@@ -85,8 +86,8 @@ MYDI_FOLLOW_SEEDS=200 go test -run "TestTheFollower|TestARamp|TestAJump|TestDrop
   Nothing on its path allocates per pulse or reads the wall clock (ADR-0003 parts A and B).
 - **Stalls are counted, not hidden** (ADR-0003 part D): a new way a write can be late adds its count to `Timing`.
 - **A note started is a note ended**: anything that drops writes keeps note offs and All Notes Off (ADR-0006 part C).
-- **Tests are black-box** (`package mydi_test`), reach the library only through what it exports, and wait for conditions, never fixed
-  sleeps, except before a check that something did not happen. A test that needs a device plays a recording (`testdata/`) or a
+- **Tests are black-box** (`package mydi_test`), live in `tests/` (the examples alone beside the package), reach the library only through what it exports, and wait for conditions, never fixed
+  sleeps, except before a check that something did not happen. A test that needs a device plays a recording (`tests/testdata/`) or a
   virtual port, never the machine's own ports.
 - **Decisions first.** A change to how time is kept, how ports are written or how a clock is followed gets an ADR (from
   `docs/adrs/template.md`, the next number) before the code, with its evidence; a measurement goes in `docs/reports/` with its evidence

@@ -6,7 +6,7 @@ The rules for this repository are in [DEVELOPMENT.md](DEVELOPMENT.md); do not re
   `THIRD_PARTY_NOTICES.md` in the same commit.
 - The time thread never waits on a driver and allocates nothing per pulse; a change to timing, writers or following gets an ADR in
   `docs/adrs/` before the code, with its evidence.
-- Tests are black-box (`package mydi_test`) and use recordings or virtual ports, never the machine's own MIDI ports. Measures
+- Tests are black-box (`package mydi_test`), live in `tests/`, and use recordings or virtual ports, never the machine's own MIDI ports. Measures
   (`MYDI_TIMING=1`) run only when asked.
 - Check with `gofmt -l .`, `go vet ./...` for Linux and Windows, and `go test ./...` in the pinned Go image (DEVELOPMENT.md, Commands).
 - Nothing private: no machine names, device owners' setups, local paths or credentials anywhere, commit messages included.

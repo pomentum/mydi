@@ -34,4 +34,4 @@ jobs:
           go build -trimpath -o /tmp/mydi ./cmd/mydi
           GOOS=windows go build -trimpath -o /tmp/mydi.exe ./cmd/mydi
           GOOS=linux GOARCH=arm64 go build -trimpath -o /tmp/mydi-arm64 ./cmd/mydi
-          GOOS=windows go test -c -o /tmp/mydi.test.exe .
+          GOOS=windows go test -c -o /tmp/mydi.test.exe ./tests

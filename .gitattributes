@@ -1,2 +1,2 @@
 * text=auto eol=lf
-testdata/** -text
+tests/testdata/** -text

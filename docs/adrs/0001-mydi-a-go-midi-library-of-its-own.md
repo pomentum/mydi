@@ -21,7 +21,9 @@ nothing of that program: events, ports, a hub with one time thread, a writer per
 it reused beyond that program, published as a library.
 
 ## Decision
-**A.** The module is `github.com/pomentum/mydi` and its package is `mydi`, at the root, so a program imports one path. Versions are
+**A.** The module is `github.com/pomentum/mydi` and its package is `mydi`, at the root, so a program imports one path. Go makes the
+folder the import path, so the library's files are the root's; everything else has its folder (`tests/`, `cmd/mydi/`, `docs/`). A
+`src/` folder was asked for and declined for this reason: it would make every program import `github.com/pomentum/mydi/src`. Versions are
 semantic version tags (`v0.x.y` while the API settles); a program pins one exactly. The module is published by making the repository
 public and tagging; the Go module proxy and pkg.go.dev then serve it with no other step.
 
@@ -37,7 +39,8 @@ process-wide switches they use (`SetLanding`, `SetLead`, `SetResync`, `SetHoldDr
 `OnHold`), which a program leaves alone unless it measures. A program says which ports may be used (`NewHub`'s `allowed`), who owns
 what it sends (`Owner`, any string), and where what comes in goes (`listen`); the library never decides those.
 
-**D.** The library's tests reach it only through what it exports, as a program does. Tests that need Windows itself (WinMM, the time
+**D.** The library's tests live in `tests/` (package `mydi_test`) with the recordings in `tests/testdata/`, and reach it only through
+what it exports, as a program does; the examples alone stay beside the package, where pkg.go.dev shows them. Tests that need Windows itself (WinMM, the time
 thread's timer and priority) are built as `.test.exe` and run on a Windows machine; the clock's timing on a machine is a measure, run
 only when asked (`MYDI_TIMING=1`), never a gate. A program that uses mydi keeps its own integration tests, which exercise mydi through it.
 
