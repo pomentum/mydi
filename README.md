@@ -16,11 +16,14 @@ mydi plays, clocks and follows MIDI from Go, in pure Go (no cgo):
 - **A device's clock followed** and sent on to other ports, every pulse counted from Start to Stop, with its tempo and phase.
 - **Measures** of a machine's timing and of where its system stamps input, as a library and as the `mydi` command.
 
-| System | Ports | Notes |
-|---|---|---|
-| Windows 10 and 11 | WinMM (`Winmm.dll`), input stamped by the system | The time thread on the performance counter, a high-resolution waitable timer and MMCSS |
-| Linux, Raspberry Pi | ALSA's raw MIDI devices (`/dev/snd/midiC*D*`) | Go's monotonic clock and timers |
-| Any other | None (`System` lists no port) | Virtual ports, the follower and the measures work everywhere |
+| System | Ports | Timing | State |
+|---|---|---|---|
+| Windows | WinMM (`Winmm.dll`), input stamped by the system | The performance counter, a high-resolution waitable timer and MMCSS | Measured on Windows 11 ([reports](docs/reports/README.md)) |
+| Linux | ALSA's raw MIDI devices (`/dev/snd/midiC*D*`) | Go's monotonic clock and timers | Its tests run on Linux in CI; built for `amd64` and `arm64` (a Raspberry Pi); not yet measured with a device |
+| Any other | None (`System` lists no port) | Go's | Virtual ports, the follower and the measures work everywhere |
+
+mydi is at `v0`: its API may still change, a breaking change taking a new minor version. It needs Go 1.27.1 or later
+and nothing else: the standard library and `golang.org/x/sys`.
 
 ## Install
 
@@ -31,21 +34,52 @@ go install github.com/pomentum/mydi/cmd/mydi@latest   # the measuring tool
 
 ## Use
 
-```go
-hub := mydi.NewHub(mydi.System{}, func(id string) bool { return true }, func(r mydi.Received) {
-	fmt.Println(r.Port, r.Event.Type, r.At)
-}, log.Printf)
-defer hub.Close()
+A whole program: a clock and a note on the machine's first MIDI output, and every input printed.
 
-ports, _ := hub.Ports()                // the ids to play
-_ = hub.Clock(ports[0].ID, 120, true)  // a clock at 120 BPM, with Start
-note, velocity := 60, 100
-_ = hub.Send("song", ports[0].ID, []mydi.Event{
-	{Type: "noteOn", Channel: 1, Note: &note, Velocity: &velocity},
-	{Type: "noteOff", Channel: 1, Note: &note, At: 500}, // half a second later
-})
-hub.Listen()                           // what the allowed ports play in, to the function above
-hub.Release("song")                    // every note "song" holds ended, its pending events cancelled
+```go
+package main
+
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/pomentum/mydi"
+)
+
+func main() {
+	// every port of the machine may be used; what the inputs play in is printed
+	hub := mydi.NewHub(mydi.System{}, func(string) bool { return true }, func(r mydi.Received) {
+		fmt.Println(r.Port, r.Event.Type, r.At)
+	}, log.Printf)
+	defer hub.Close()
+
+	ports, err := hub.Ports()
+	if err != nil {
+		log.Fatal(err)
+	}
+	synth := ""
+	for _, p := range ports {
+		if p.Out {
+			synth = p.ID
+			break
+		}
+	}
+	if synth == "" {
+		log.Fatal("no MIDI output on this machine")
+	}
+
+	hub.Listen()                    // the inputs opened, their messages to the function above
+	_ = hub.Clock(synth, 120, true) // a clock at 120 BPM, with Start
+	note, velocity := 60, 100
+	_ = hub.Send("song", synth, []mydi.Event{
+		{Type: "noteOn", Channel: 1, Note: &note, Velocity: &velocity},
+		{Type: "noteOff", Channel: 1, Note: &note, At: 500}, // half a second later
+	})
+	time.Sleep(2 * time.Second)
+	_ = hub.Clock(synth, 0, false) // Stop
+	hub.Release("song")            // any note "song" still holds ended, its pending events cancelled
+}
 ```
 
 [Getting started](docs/guides/getting-started.md) goes further: events, owners, the clock, following a device, virtual ports.
