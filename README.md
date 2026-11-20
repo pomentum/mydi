@@ -98,7 +98,7 @@ behind the design.
 
 ## Documentation
 
-- [Guides](docs/guides/README.md): getting started, trying it with a synth on Windows, measuring, timing on Windows.
+- [Guides](docs/guides/README.md): how mydi works, getting started, trying it with a synth on Windows, measuring, timing on Windows.
 - [Decisions](docs/adrs/README.md): why the clock, the writers and the follower are built as they are.
 - [Trials](docs/trials/README.md): the uses mydi sets out to cover, and how each is shown.
 - [Developing mydi](DEVELOPMENT.md): layout, commands, tests on Linux and Windows, rules.

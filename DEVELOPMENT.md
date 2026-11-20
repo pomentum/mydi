@@ -30,7 +30,7 @@ src/                    the library's code (package src)
   internal/forwards/    the generator of mydi.go
 tests/                  every test, black-box (package mydi_test); tests/testdata/ holds recorded devices
 cmd/mydi/               the measuring tool (ADR-0001 part E)
-docs/guides/            how to use and measure it
+docs/guides/            how it works (drawn), how to use and measure it
 docs/adrs/              the decisions, numbered from 0000; template.md
 docs/trials/            the uses mydi sets out to cover, TST-0001 onwards
 docs/reports/           the measurements and research behind the decisions
