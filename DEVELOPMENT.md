@@ -7,24 +7,27 @@ not repeat them.
 
 ```
 go.mod, go.sum          the module github.com/pomentum/mydi, every dependency pinned
-doc.go                  the package's documentation, as pkg.go.dev shows it
-event.go                events as JSON, Encode, Decode, the running-status Parser
-port.go                 drivers and ports, IDOf, Virtual ports of files
-alsa_linux.go           System on Linux and the Pi: ALSA's raw MIDI device files
-winmm_windows.go        System on Windows: Winmm.dll, input stamped by the system
-system_other.go         System elsewhere: no port
-device_port.go          a USB device's port, found by its identity
-devices.go              a MIDI device coming or going, and until when Windows may hold writes for it
-hub.go                  the Hub: ports opened when used, Send, Release, Panic, Clock, Listen, Close
-scheduler.go            the time thread (ADR-0003): one queue on one timeline, its counts
-timeline_*.go, tick_*.go  the timeline and the timer per system (the performance counter and MMCSS on Windows)
-writer.go, lander.go    each port's writer (ADR-0006, ADR-0007) and its landing (ADR-0008)
-follow.go               the Follower: a device's clock in, tempo and phase out (ADR-0004 part C)
-remake.go               the Remaker: the clock sent on, counted (ADR-0004 part D, ADR-0005)
-echo.go                 the echo test, a loop guard (ADR-0005 part B)
-following.go, tell.go   a followed clock on the hub, and what its listeners hear (ADR-0004 part E)
-loopback.go, measure.go the measures: where a system stamps input, the clock's own timing
+doc.go                  the package's documentation, as pkg.go.dev shows it, and its go:generate line
+mydi.go                 generated: every name src/ exports, forwarded, so programs import the root (go generate at the root)
 example_test.go         the examples pkg.go.dev shows, which Go reads only beside the package
+src/                    the library's code (package src)
+  event.go              events as JSON, Encode, Decode, the running-status Parser
+  port.go               drivers and ports, IDOf, Virtual ports of files
+  alsa_linux.go         System on Linux and the Pi: ALSA's raw MIDI device files
+  winmm_windows.go      System on Windows: Winmm.dll, input stamped by the system
+  system_other.go       System elsewhere: no port
+  device_port.go        a USB device's port, found by its identity
+  devices.go            a MIDI device coming or going, and until when Windows may hold writes for it
+  hub.go                the Hub: ports opened when used, Send, Release, Panic, Clock, Listen, Close
+  scheduler.go          the time thread (ADR-0003): one queue on one timeline, its counts
+  timeline_*.go, tick_*.go  the timeline and the timer per system (the performance counter and MMCSS on Windows)
+  writer.go, lander.go  each port's writer (ADR-0006, ADR-0007) and its landing (ADR-0008)
+  follow.go             the Follower: a device's clock in, tempo and phase out (ADR-0004 part C)
+  remake.go             the Remaker: the clock sent on, counted (ADR-0004 part D, ADR-0005)
+  echo.go               the echo test, a loop guard (ADR-0005 part B)
+  following.go, tell.go a followed clock on the hub, and what its listeners hear (ADR-0004 part E)
+  loopback.go, measure.go the measures: where a system stamps input, the clock's own timing
+  internal/forwards/    the generator of mydi.go
 tests/                  every test, black-box (package mydi_test); tests/testdata/ holds recorded devices
 cmd/mydi/               the measuring tool (ADR-0001 part E)
 docs/guides/            how to use and measure it
@@ -79,6 +82,9 @@ MYDI_FOLLOW_SEEDS=200 go test -run "TestTheFollower|TestARamp|TestAJump|TestDrop
 
 - **Pure Go.** No cgo; the standard library and `golang.org/x/sys` only. A new dependency is pinned exactly, needs an ADR saying why,
   and adds a row to [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) in the same commit.
+- **The code is in `src/`, the API at the root.** Programs import `github.com/pomentum/mydi`; `mydi.go` forwards every name `src/`
+  exports and is generated: after adding, renaming or removing an exported name, run `go generate` at the root and commit `mydi.go`
+  (CI and `TestTheRootForwardsEveryNameSrcExports` refuse it out of step). Methods come with their types, so a new method needs nothing.
 - **The API is what a MIDI program needs.** Who may use a port, who owns what is sent and where input goes are the caller's
   (`NewHub`'s arguments); the library decides none of them (ADR-0001 part C). An exported name is documented; a change to one is a
   change of version (`v0.x` while it settles: a minor for a break, a patch otherwise).

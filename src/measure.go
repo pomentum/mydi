@@ -1,4 +1,4 @@
-package mydi
+package src
 
 import (
 	"context"
@@ -164,7 +164,7 @@ func MeasureClock(ctx context.Context, bpm float64, length time.Duration, id str
 		return ClockMeasure{}, err
 	}
 	done := make(chan struct{})
-	if OnHold != nil {
+	if onHold != nil {
 		go watchHolds(h, done)
 	}
 	wait := func(d time.Duration) bool {
@@ -206,14 +206,17 @@ func MeasureClock(ctx context.Context, bpm float64, length time.Duration, id str
 	return m, nil
 }
 
-// OnHold, when set, is told once for each write a measured clock's port holds past HoldReported, while the driver still holds it: what
+// onHold, when set (SetOnHold), is told once for each write a measured clock's port holds past HoldReported, while the driver still holds it: what
 // stops a trace recorded in a circular buffer just after a hold, the only way to see which driver held it.
-var OnHold func(heldMs float64)
+var onHold func(heldMs float64)
 
-// HoldReported is how long a write must be held for OnHold to hear of it.
+// SetOnHold sets the function told of each write a measured clock's port holds past HoldReported; nil tells none.
+func SetOnHold(f func(heldMs float64)) { onHold = f }
+
+// HoldReported is how long a write must be held for SetOnHold's function to hear of it.
 const HoldReported = 100 * time.Millisecond
 
-// watchHolds tells OnHold of each hold past HoldReported, looking every 5 ms until done.
+// watchHolds tells onHold of each hold past HoldReported, looking every 5 ms until done.
 func watchHolds(h *Hub, done chan struct{}) {
 	tick := time.NewTicker(5 * time.Millisecond)
 	defer tick.Stop()
@@ -228,7 +231,7 @@ func watchHolds(h *Hub, done chan struct{}) {
 		switch {
 		case held > float64(HoldReported/time.Millisecond) && !told:
 			told = true
-			OnHold(held)
+			onHold(held)
 		case held == 0:
 			told = false
 		}

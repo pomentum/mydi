@@ -1,4 +1,4 @@
-package mydi
+package src
 
 import (
 	"errors"

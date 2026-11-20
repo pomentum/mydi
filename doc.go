@@ -13,3 +13,5 @@
 // Each port's driver calls are made by a writer of its own, so a driver that holds one call never holds the other ports. The design is
 // recorded in the repository's docs/adrs.
 package mydi
+
+//go:generate go run ./src/internal/forwards

@@ -1,4 +1,4 @@
-package mydi
+package src
 
 // LanderConfig is ADR-0008 part B's constants: how many of a writer's last Window landed writes may be late before it stands down, and
 // for how many writes it stands down, doubled for a stand-down that comes within Window writes of the last one's end, up to MaxDown.

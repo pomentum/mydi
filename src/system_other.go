@@ -1,6 +1,6 @@
 //go:build !linux && !windows
 
-package mydi
+package src
 
 // System on macOS and the rest: no ports yet (CoreMIDI when macOS is more than development, ADR-0002 part E).
 type System struct{}

@@ -2,6 +2,7 @@
 
 The rules for this repository are in [DEVELOPMENT.md](DEVELOPMENT.md); do not repeat them here, change that file instead. The hard ones:
 
+- The code is in `src/`; the root's `mydi.go` forwards it and is generated (`go generate` at the root after an exported name changes).
 - Pure Go, no cgo; the standard library and `golang.org/x/sys` only. A new dependency needs an ADR and a row in
   `THIRD_PARTY_NOTICES.md` in the same commit.
 - The time thread never waits on a driver and allocates nothing per pulse; a change to timing, writers or following gets an ADR in

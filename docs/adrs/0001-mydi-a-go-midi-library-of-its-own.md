@@ -21,9 +21,13 @@ nothing of that program: events, ports, a hub with one time thread, a writer per
 it reused beyond that program, published as a library.
 
 ## Decision
-**A.** The module is `github.com/pomentum/mydi` and its package is `mydi`, at the root, so a program imports one path. Go makes the
-folder the import path, so the library's files are the root's; everything else has its folder (`tests/`, `cmd/mydi/`, `docs/`). A
-`src/` folder was asked for and declined for this reason: it would make every program import `github.com/pomentum/mydi/src`. Versions are
+**A.** The module is `github.com/pomentum/mydi` and its package is `mydi`, at the root, so a program imports one path. The code is in
+`src/` (package `src`), which the owner asked for (2026-11-20); since Go makes the folder the import path, the root holds one generated
+file, `mydi.go`, that forwards every name `src/` exports (types as aliases, constants and variables as the same values, a settings struct
+by its address, functions by the same signature), so programs import the root. Its costs, accepted: pkg.go.dev documents each type's
+methods on `src`'s page, `/src` can be imported too (the root is the one to use), and the three measuring settings that were package
+variables are forwarded by address (`MeasureHold`, `MeasureRestart`) or set through a function (`SetOnHold`). `go generate` writes
+`mydi.go` again; a test and CI keep it in step. Versions are
 semantic version tags (`v0.x.y` while the API settles); a program pins one exactly. The module is published by making the repository
 public and tagging; the Go module proxy and pkg.go.dev then serve it with no other step.
 

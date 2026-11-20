@@ -127,13 +127,13 @@ func runTiming(args []string) int {
 	}
 	mydi.MeasureHold.After, mydi.MeasureHold.Hold, mydi.MeasureHold.Every = *holdAfter, time.Duration(*holdFor)*time.Millisecond, *holdEvery
 	if *holdFlag != "" {
-		mydi.OnHold = func(heldMs float64) {
+		mydi.SetOnHold(func(heldMs float64) {
 			line := fmt.Sprintf("%s a write held %.0f ms so far\n", time.Now().Format(time.RFC3339Nano), heldMs)
 			if f, err := os.OpenFile(*holdFlag, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644); err == nil {
 				_, _ = f.WriteString(line)
 				_ = f.Close()
 			}
-		}
+		})
 	}
 	measure := func(ctx context.Context) error {
 		var m mydi.ClockMeasure

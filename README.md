@@ -106,7 +106,4 @@ behind the design.
 
 ## License
 
-[Apache License 2.0](LICENSE), copyright 2026 Pomentum. See [NOTICE](NOTICE) and [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for
-the software mydi builds on.
-
-mydi is a project of [Pomentum](https://www.pomentum.dev/), an open-source hub.
+[Apache License 2.0](LICENSE).

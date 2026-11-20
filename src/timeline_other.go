@@ -1,6 +1,6 @@
 //go:build !windows
 
-package mydi
+package src
 
 import (
 	"math"
