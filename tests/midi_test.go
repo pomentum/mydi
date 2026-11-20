@@ -252,7 +252,9 @@ func TestAPortThatFailsIsOpenedAgainAndToldAllNotesOff(t *testing.T) {
 func TestNoPulseIsWrittenAfterTheClocksStopIsAskedFor(t *testing.T) {
 	// ADR-0007: pulses are handed to the port's writer 2 ms ahead of their time; a Stop asked for while one waits there takes it back, so
 	// a receiver never counts a pulse after the Stop the listener asked for. Each Stop is asked 1 ms before the clock's third pulse is due,
-	// while it waits handed; the pulse before it was due 20 ms earlier, so a pulse written after the ask can only be the one handed
+	// while it waits handed; the pulse before it was due 20 ms earlier, so a pulse written after the Stop has returned can only be the one
+	// handed. The time is read when the call returns, not before it: on a loaded machine the test can be paused between reading the clock
+	// and calling, and the pulse is then rightly written on its time before the Stop reaches the hub
 	f := &fake{}
 	h := mydi.NewHub(f, only("synth"), nil, nil)
 	defer h.Close()
@@ -266,10 +268,10 @@ func TestNoPulseIsWrittenAfterTheClocksStopIsAskedFor(t *testing.T) {
 		if wait := time.Duration(started + 3*interval - int64(time.Millisecond) - mydi.Now()); wait > 0 {
 			time.Sleep(wait)
 		}
-		asked := mydi.Now()
 		if err := h.Clock("synth", 0, false); err != nil {
 			t.Fatal(err)
 		}
+		asked := mydi.Now()
 		f.mu.Lock()
 		for j := len(f.written) - 1; j >= 0 && f.times[j] > asked; j-- {
 			if f.written[j][0] == 0xF8 {
