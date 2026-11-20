@@ -102,6 +102,7 @@ behind the design.
 - [Decisions](docs/adrs/README.md): why the clock, the writers and the follower are built as they are.
 - [Trials](docs/trials/README.md): the uses mydi sets out to cover, and how each is shown.
 - [Developing mydi](DEVELOPMENT.md): layout, commands, tests on Linux and Windows, rules.
+- [Changelog](CHANGELOG.md): what each release changed.
 
 ## License
 

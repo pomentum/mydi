@@ -54,7 +54,7 @@ causes, and the sellers of sync hardware have measured the result.
   signal and is set by ear, playing both sides until they line up ([V-web] [Live 12 manual, Synchronizing](https://www.ableton.com/en/live-manual/12/synchronizing-with-link-tempo-follower-and-midi)).
   Whether Live makes clock once per audio buffer is not on any page read [Inf: the forum's figures fit it]. Users elsewhere blame
   plugin delay compensation, which "live is not compensating the midi clock with", and a "higher priority of audio vs midi @ OS level",
-  as opinions, not measurements ([V-web] [Elektronauts](https://www.elektronauts.com/t/digitakt-receiving-inconsistent-midi-clock-from-daw/48469?page=2)).
+  as opinions, not measurements ([V-web], a thread of an instrument maker's user forum, read on 2026-11-13).
 - **Windows' classic MIDI drivers take no timestamps.** Ableton's MIDI fact sheet: "Windows MME drivers cannot process timestamps", so
   "Live schedules outgoing events internally"; its own tests at about 50% CPU found most events within ±1 ms on Windows, with peaks of ±4
   ms on one interface, ±3 to 6 ms on a second and up to ±10 ms on a third; its rule is that "latency is preferable to jitter" ([V-web]

@@ -104,5 +104,6 @@ MYDI_FOLLOW_SEEDS=200 go test -run "TestTheFollower|TestARamp|TestAJump|TestDrop
   `feat`, `fix`, `docs`, `test`, `perf`, `refactor`, `ci`, `chore`.
 - Commits are the owner's. No AI co-author line or attribution in a message or trailer.
 - Never rebase; merge. Topic branches are `wip/<topic>`, merged into `main`.
-- No push, tag or release without the owner's approval. A release is a tag `vX.Y.Z` on `main`; the Go module proxy and pkg.go.dev take
+- No push, tag or release without the owner's approval. A release is a tag `vX.Y.Z` on `main`, its entry in `CHANGELOG.md` dated in the
+  same change; the Go module proxy and pkg.go.dev take
   it from there.
